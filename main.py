@@ -7,9 +7,15 @@ import re
 import datetime
 
 state = os.environ["STATE"]
+
+qmsg = ''
+
+qmsg_key = os.environ["qmsg_key"]
+
 # schedule_tm = {'hour': os.environ["H"], 'min': os.environ["M"]}
-signIn = {'username': os.environ["USERNAME"], #学号
-          'password': os.environ["PASSWORD"]} #登陆密码
+
+signIn = {'username': os.environ["USERNAME"], 'password': os.environ["PASSWORD"]}
+
 headers = {
         'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.146 Mobile Safari/537.36',
     }
@@ -41,16 +47,14 @@ def run_script():
     test_info_json_obj = json.loads(oldInfo.replace('oldInfo: ', '')[:-1])
     print('#1:', test_info_json_obj['address'])
     print('#2:', 'position:', test_info_json_obj['geo_api_info'])
+    format_qmsg(test_info_json_obj['address'],'address')
 
     firstParam = re.search('sfzgsxsx: .,',JStr).group()
     firstParam = '"' + firstParam.replace(':','":')
-    print(firstParam)
     secondParam = re.search('sfzhbsxsx: .,',JStr).group()
     secondParam = '"' +  secondParam.replace(':','":')
-    print(secondParam)
     lastParam = re.search('szgjcs: \'(.*)\'',JStr).group()
     lastParam = lastParam.replace('szgjcs: \'','').rstrip('\'')
-    print(lastParam)
 
     newInfo = oldInfo
     newInfo = newInfo.replace('oldInfo: {','{' + firstParam + secondParam).rstrip(',')
@@ -76,6 +80,8 @@ def run_script():
         dic[j] = defdic[j]
     dic['szgjcs'] = lastParam
 
+    # Send
+    '''
     saveResponse = conn.post(
         url="https://app.upc.edu.cn/ncov/wap/default/save",
         headers=headers,
@@ -85,6 +91,18 @@ def run_script():
 
     saveJson = json.loads(saveResponse.text)
     print(saveJson['m'])
+    format_qmsg(saveJson['m'], 'RES')
+    '''
+
+list_blocked_word = ["中国", "公寓"]
+
+def format_qmsg(new_msg, pre=None):
+    global qmsg
+    for w in list_blocked_word:
+        new_msg = new_msg.replace(w, '*')
+    if pre:
+        new_msg = '*'*12 + '\n' + pre + '\n    ' + new_msg
+    qmsg+=new_msg
 
 def handle_schedule():
     dt0 = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
@@ -93,8 +111,17 @@ def handle_schedule():
         return True
     return False
 
-if state =="EN":
+if state == "EN":
+    print('Script start')
     run_script()
+elif state == "DEN":
+    print('Script disabled')
+    format_qmsg('Script disabled', 'RES')
 else:
     print('STATE ERRO')
+    format_qmsg('STATE ERRO[' + state + ']', 'ERRO')
 
+print(qmsg)
+
+if qmsg_key:
+    requests.get('https://qmsg.zendee.cn/send/' + qmsg_key, {'msg': qmsg})
