@@ -95,3 +95,6 @@ def handle_schedule():
 
 if state =="EN":
     run_script()
+else:
+    print('STATE ERRO')
+
