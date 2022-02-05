@@ -10,7 +10,7 @@ state = os.environ["STATE"]
 
 qmsg = ''
 
-qmsg_key = os.environ["qmsg_key"]
+qmsg_key = os.environ["QMSG_KEY"]
 
 # schedule_tm = {'hour': os.environ["H"], 'min': os.environ["M"]}
 
