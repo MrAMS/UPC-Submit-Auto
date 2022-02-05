@@ -33,6 +33,8 @@ jobs:
       env:
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }} 
+          QMSG_KEY: ${{ secrets.QMSG_KEY }} 
+          STATE: ${{ secrets.STATE }} 
       run: |
         python main.py
         # 执行代码
