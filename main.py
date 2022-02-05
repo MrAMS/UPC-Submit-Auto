@@ -81,7 +81,6 @@ def run_script():
     dic['szgjcs'] = lastParam
 
     # Send
-    '''
     saveResponse = conn.post(
         url="https://app.upc.edu.cn/ncov/wap/default/save",
         headers=headers,
@@ -92,7 +91,6 @@ def run_script():
     saveJson = json.loads(saveResponse.text)
     print(saveJson['m'])
     format_qmsg(saveJson['m'], 'RES')
-    '''
 
 list_blocked_word = ["中国", "公寓"]
 
